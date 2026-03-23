@@ -9,7 +9,23 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
+      internal-bridge:
+        aliases:
+          - db # This makes the hostname 'db' work perfectly
+    restart: always
+
+  api-server:
+    build: ./backend
+    container_name: ${PROJECT_NAME}-api-server
+    environment:
+      # Using 'db' as the hostname now
+      - DATABASE_URL=postgres://${DB_USER:-myuser}:${DB_PASSWORD:-example_password}@db:5432/${DB_NAME:-mydatabase}
+    networks:
       - internal-bridge
+      - web-gateway
+    depends_on:
+      - db
+    restart: on-failure # Important: If it fails to connect to DB, Docker will restart it
 
   frontend:
     build:
@@ -26,22 +42,11 @@ services:
     depends_on:
       - api-server
 
-  api-server:
-    build: ./backend
-    container_name: ${PROJECT_NAME}-api-server
-    environment:
-      - DATABASE_URL=postgres://${DB_USER:-myuser}:${DB_PASSWORD:-example_password}@db:5432/${DB_NAME:-mydatabase}
-    networks:
-      - internal-bridge
-      - web-gateway
-    depends_on:
-      - db
-
 networks:
   internal-bridge:
     driver: bridge
   web-gateway:
-    external: true # Changed from external: true for local standalone testing
+    external: true
 
 volumes:
   db_data:
