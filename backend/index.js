@@ -1,18 +1,50 @@
 const express = require('express');
-const { Pool } = require('pg');
+const cors = require('cors');
+const db = require('./Database');
+const chatController = require('./ChatController');
+
 const app = express();
-const port = process.env.PORT || 3002;
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+// 1. CORS is first
+app.use(cors());
 
-app.get('/api/count', async (req, res) => {
-    const result = await pool.query('SELECT val FROM counter LIMIT 1');
-    res.json({ count: result.rows[0]?.val || 0 });
-});
+// 2. Body Parser is second
+app.use(express.json());
 
-app.post('/api/increment', async (req, res) => {
-    await pool.query('UPDATE counter SET val = val + 1');
-    res.sendStatus(200);
-});
+// 3. Routes
+app.get('/api/messages', (req, res) => chatController.getMessages(req, res));
+app.post('/api/messages', (req, res) => chatController.saveMessage(req, res));
 
-app.listen(port, () => console.log(`Backend on ${port}`));
+const PORT = 5000;
+
+// Start server after DB init
+const start = async () => {
+    let authenticated = false;
+    const maxRetries = 10;
+    let delay = 2000; // 2 seconds
+
+    console.log("⏳ Waiting for database to be ready...");
+
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            await db.init();
+            authenticated = true;
+            console.log("✅ Database connected!");
+            break;
+        } catch (err) {
+            console.log(`⚠️ Connection attempt ${i + 1} failed. Retrying in ${delay / 1000}s...`);
+            await new Promise(res => setTimeout(res, delay));
+        }
+    }
+
+    if (!authenticated) {
+        console.error("❌ Could not connect to database after multiple attempts.");
+        process.exit(1);
+    }
+
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`🚀 Backend listening on port ${PORT}`);
+    });
+};
+
+start();

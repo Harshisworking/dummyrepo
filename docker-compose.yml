@@ -1,26 +1,47 @@
 services:
+  db:
+    image: postgres:alpine
+    container_name: ${PROJECT_NAME}-db
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-example_password}
+      POSTGRES_USER: ${DB_USER:-myuser}
+      POSTGRES_DB: ${DB_NAME:-mydatabase}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - internal-bridge
+
   frontend:
-    build: ./frontend
-    # No ports here; your docker-proxy.yml will handle the external port
+    build:
+      context: ./frontend
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+        - PROJECT_NAME=${PROJECT_NAME}
+    container_name: ${PROJECT_NAME}-frontend
+    stdin_open: true
+    tty: true
+    networks:
+      - internal-bridge
+      - web-gateway
     depends_on:
-      - backend
+      - api-server
 
   api-server:
     build: ./backend
+    container_name: ${PROJECT_NAME}-api-server
     environment:
-      - DATABASE_URL=postgres://user:pass@db:5432/counts
-      - PORT=3002
+      - DATABASE_URL=postgres://${DB_USER:-myuser}:${DB_PASSWORD:-example_password}@${PROJECT_NAME}-db:5432/${DB_NAME:-mydatabase}
+    networks:
+      - internal-bridge
+      - web-gateway
     depends_on:
       - db
 
-  db:
-    image: postgres:15-alpine
-    environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=pass
-      - POSTGRES_DB=counts
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+networks:
+  internal-bridge:
+    driver: bridge
+  web-gateway:
+    external: true # Changed from external: true for local standalone testing
 
 volumes:
-  postgres_data:
+  db_data:
