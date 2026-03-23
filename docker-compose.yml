@@ -30,7 +30,7 @@ services:
     build: ./backend
     container_name: ${PROJECT_NAME}-api-server
     environment:
-      - DATABASE_URL=postgres://${DB_USER:-myuser}:${DB_PASSWORD:-example_password}@${PROJECT_NAME}-db:5432/${DB_NAME:-mydatabase}
+      - DATABASE_URL=postgres://${DB_USER:-myuser}:${DB_PASSWORD:-example_password}@db:5432/${DB_NAME:-mydatabase}
     networks:
       - internal-bridge
       - web-gateway
