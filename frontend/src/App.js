@@ -6,6 +6,7 @@ function App() {
   const [input, setInput] = useState('');
 
   useEffect(() => {
+    console.log("This is url",process.env.NEXT_PUBLIC_API_URL);
     loadMessages();
   }, []);
 
