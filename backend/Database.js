@@ -2,6 +2,7 @@ const { Pool } = require('pg');
 
 class Database {
     constructor() {
+        console.log(process.env.DATABASE_URL);
         this.pool = new Pool({
             connectionString: process.env.DATABASE_URL,
         });
