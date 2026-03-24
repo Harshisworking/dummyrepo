@@ -17,6 +17,9 @@ services:
   api-server:
     build: ./backend
     container_name: ${PROJECT_NAME}-api-server
+    environment:
+      # Olivia will inject this entire string as one variable
+      - DATABASE_URL=${DATABASE_URL}
     networks:
       - internal-bridge
       - web-gateway
