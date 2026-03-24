@@ -1,6 +1,6 @@
 class ChatService {
     constructor() {
-        this.apiUrl = 'http://localhost:5000/api/messages';
+        this.apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/messages`;
     }
 
     async fetchMessages() {
