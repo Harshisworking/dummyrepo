@@ -17,9 +17,6 @@ services:
   api-server:
     build: ./backend
     container_name: ${PROJECT_NAME}-api-server
-    environment:
-      # Using 'db' as the hostname now
-      - DATABASE_URL=postgres://${DB_USER:-myuser}:${DB_PASSWORD:-example_password}@db:5432/${DB_NAME:-mydatabase}
     networks:
       - internal-bridge
       - web-gateway
