@@ -27,6 +27,7 @@ const start = async () => {
 
     for (let i = 0; i < maxRetries; i++) {
         try {
+            console.log("This is Database URL:-",process.env.DATABASE_URL)
             await db.init();
             authenticated = true;
             console.log("✅ Database connected!");
