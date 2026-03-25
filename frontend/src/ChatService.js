@@ -1,7 +1,7 @@
 class ChatService {
     constructor() {
         // 1. Get the base URL and strip any accidental trailing slashes
-        const base = process.env.NEXT_PUBLIC_API_URL;
+        const base = process.env.REACT_APP_API_URL;
         console.log("checking inside",base);
         const normalizedBase = base ? base.replace(/\/$/, "") : "";
 
