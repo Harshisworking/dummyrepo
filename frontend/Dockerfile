@@ -2,10 +2,6 @@ FROM node:20-alpine
 WORKDIR /app
 
 # 1. You MUST catch the ARG here (This comes from your docker-compose args)
-ARG REACT_APP_API_URL
-
-# 2. You MUST set it as an ENV here so the build process can "see" it
-ENV REACT_APP_API_URL=$REACT_APP_API_URL
 
 COPY package*.json ./
 RUN npm install
